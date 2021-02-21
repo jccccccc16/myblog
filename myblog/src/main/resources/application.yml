@@ -1,0 +1,13 @@
+spring:
+
+  datasource:
+    name: mydb
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://192.168.52.138:3306/vueblog?serverTimezone=UTC
+    username: root
+    password: cjcisgood
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml
