@@ -11,6 +11,7 @@ import com.cjc.entity.Blog;
 import com.cjc.service.BlogService;
 import com.cjc.util.ShiroUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.ShiroException;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.springframework.beans.BeanUtils;
@@ -28,6 +29,7 @@ import java.time.LocalDateTime;
  * @author 关注公众号：MarkerHub
  * @since 2021-02-21
  */
+@Slf4j
 @RestController
 public class BlogController {
 
@@ -36,6 +38,7 @@ public class BlogController {
 
     @GetMapping("/blogs")
     public Result list(@RequestParam(defaultValue = "1") Integer currentPage){
+
 
         Page page = new Page(currentPage, 5);
         IPage<Blog> pageInfo = blogService.page((IPage<Blog>) page, new QueryWrapper<Blog>().orderByDesc("created"));
@@ -46,11 +49,9 @@ public class BlogController {
 
     @GetMapping("/blog/{id}")
     public Result detail(@PathVariable("id") Integer id){
-
-
-
-        return Result.succ(null);
-
+        Blog blog = blogService.getById(id);
+        log.info("--------------------- 查询id为 "+id+" 的博客");
+        return Result.succ(blog);
 
     }
 
@@ -60,9 +61,10 @@ public class BlogController {
 
         Blog temp = null;
 
-
-
         if(blog.getId()!=null){
+
+            log.info("--------------------- 更新id为 "+blog.getId()+" 的博客");
+
             // 更新状态
             temp = blogService.getById(blog.getId());
 

@@ -1,7 +1,6 @@
 
 <template>
   <div class="m-content">
-    header
     <h3>欢迎来到cjc的博客</h3>
     <div class="block">
       <el-avatar :size="50" :src="user.avatar"></el-avatar>
