@@ -2,10 +2,10 @@ package com.cjc.controller;
 
 
 import cn.hutool.core.lang.Assert;
-import cn.hutool.db.Page;
 import cn.hutool.log.Log;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cjc.common.lang.Result;
 import com.cjc.entity.Blog;
 import com.cjc.service.BlogService;
