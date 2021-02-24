@@ -1,69 +1,41 @@
-# 1.shiro+jwt
+package com.cjc.shiro;
 
-shiro的処初認識
+import cn.hutool.json.JSONUtil;
+import com.cjc.common.lang.Result;
+import com.cjc.service.UserService;
+import com.cjc.util.JwtUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
-## 1.1shiro是什麽
+/**
+ * Created by IntelliJ IDEA.
+ * User: cjc
+ * Date: 2021/2/22
+ * Time: 11:09
+ * To change this template use File | Settings | File Templates.
+ **/
 
- 三个核心组件：Subject, SecurityManager 和 Realms. 
+import io.jsonwebtoken.Claims;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.AuthenticationToken;
+import org.apache.shiro.authc.ExpiredCredentialsException;
+import org.apache.shiro.web.filter.authc.AuthenticatingFilter;
+import org.apache.shiro.web.util.WebUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestMethod;
 
-subject:當前用戶
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
-securityManager:  它是Shiro框架的核心，典型的[Facade模式](https://baike.baidu.com/item/Facade模式/7557140)，Shiro通过SecurityManager来管理内部组件实例，并通过它来提供安全管理的各种服务。 
-
-realm:認證和授權
-
-## 1.2shiro是如何工作的
-
-shiro工作流程
-
-![1613962242959](C:\Users\cjc\AppData\Roaming\Typora\typora-user-images\1613962242959.png)
-
-
-
-
-
-# 2.整合shiro
-
-整合shiro需要编写shiro配置类，重写Realm，在这个项目中，还自定义了一个JwtFilter继承于AuthenticatingFilter，如果某一个资源设置了验证的权限，每当用户访问该资源，都会被shiro的过滤器链处理，其中包括AuthenticatingFilter，需要对该用户进行验证，判断是否验证通过，如何验证就需要我们去重写。
-
-通过debug可以简单地理解shiro的验证过程
-
-```java
-@PostMapping("/login")
-    public Result login(
-            @Validated @RequestBody LoginVO loginVO,
-            HttpServletResponse response){
-
-        User user = userService.getOne(new QueryWrapper<User>().eq("username", loginVO.getUsername()));
-        Assert.notNull(user,"账号或密码不正确");
-        if(!user.getPassword().equals(SecureUtil.md5(loginVO.getPassword()))){
-            return Result.fail("账号或密码不正确");
-        }
-        String jwt = jwtUtils.generateToken(user.getId());
-        response.setHeader("Authorization",jwt);
-        response.setHeader("Access-control-Expose-Headers","Authorization");
-        return Result.succ(MapUtil.builder()
-                .put("id",user.getId())
-                .put("username",user.getUsername())
-                .put("avatar",user.getAvatar())
-                .put("email",user.getEmail())
-                .map());
-    }
-```
-
-用户通过登录，我们给该用户生成jwt放到header上
-
-假如当用户访问，编辑博客，在编辑博客的方法上加上了验证的权限
-
-```java
-@RequiresAuthentication
-    @PostMapping("/blog/edit")
-    public Result edit(@Validated @RequestBody Blog blog){
-```
-
-那么用户的访问会被过滤器链拦截，我们自定义了一个验证过滤器
-
-```java
+/**
+ * 獲取jwt進行驗證
+ */
 @Component
 public class JwtFilter extends AuthenticatingFilter {
 
@@ -155,30 +127,3 @@ public class JwtFilter extends AuthenticatingFilter {
         return super.preHandle(request, response);
     }
 }
-
-```
-
-解释createToken，获取头信息获取在登录时加上的Authorization，如果有打包成JwtToken
-
-```java
-public class JwtToken implements AuthenticationToken {
-
-    private String token;
-
-    public JwtToken(String jwt) {
-        this.token = jwt;
-    }
-
-    @Override
-    public Object getPrincipal() {
-        return token;
-    }
-
-    @Override
-    public Object getCredentials() {
-        return token;
-    }
-}
-
-```
-
