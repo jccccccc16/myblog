@@ -3,7 +3,7 @@
   <Header></Header>
   <div class="m-blog" >
     <h2>{{blog.title}}</h2>
-    <el-link icon="el-icon-edit">
+    <el-link icon="el-icon-edit" v-if="ownBlog">
       <router-link :to="{name:'BlogEdit',params:{blogId:blog.id}}">
       编辑
       </router-link>
@@ -24,10 +24,12 @@ export default {
     return{
       blog:{
         id:'',
+        userId:'',
         title:'biaoti',
         description:'',
         content:'neirong'
-      }
+      },
+      ownBlog: false
     }
   },
   created() {
@@ -44,6 +46,7 @@ export default {
         var md = new MardownIt()
         var result = md.render(blog.content);
         _this.blog.content = result;
+        _this.ownBlog = (blog.userId === _this.$store.getters.getUser.id);
       })
     }
   }

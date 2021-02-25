@@ -9,6 +9,7 @@ import "./axios"
 // 全局注册
 import mavonEditor from 'mavon-editor'
 import 'mavon-editor/dist/css/index.css'
+import  "./permission"
 // usedf
 Vue.use(mavonEditor)
 Vue.prototype.$axios = axios
